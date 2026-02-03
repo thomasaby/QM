@@ -32,7 +32,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const project = projects.find(p => p.id === currentSessionProjectId);
         if (!project.sessions) project.sessions = [];
         if (!project.sessions.some(s => !s.end)) {
-            project.sessions.push({ start: new Date().toISOString(), end: null, notes: '' });
+            // Get custom start time if provided
+            const customStart = document.getElementById('session-start-input-modal').value;
+            const startTime = customStart ? new Date(customStart).toISOString() : new Date().toISOString();
+            project.sessions.push({ start: startTime, end: null, notes: '' });
             saveProjects(projects);
             openSessionModal(currentSessionProjectId);
         } else {
@@ -46,7 +49,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const project = projects.find(p => p.id === currentSessionProjectId);
         if (project && project.sessions && project.sessions.some(s => !s.end)) {
             const session = project.sessions.find(s => !s.end);
-            session.end = new Date().toISOString();
+            // Get custom end time if provided
+            const customEnd = document.getElementById('session-end-input-modal').value;
+            session.end = customEnd ? new Date(customEnd).toISOString() : new Date().toISOString();
             saveProjects(projects);
             openSessionModal(currentSessionProjectId);
         }
@@ -120,18 +125,26 @@ document.addEventListener('DOMContentLoaded', () => {
                     status = 'planned';
                     statusText = 'Planned';
                 }
-                // Calculate total session time
-                let totalSessionHours = 0;
+                // Calculate total session time in ms
+                let totalSessionMs = 0;
                 if (project.sessions && Array.isArray(project.sessions)) {
-                    totalSessionHours = project.sessions.reduce((sum, s) => {
+                    totalSessionMs = project.sessions.reduce((sum, s) => {
                         if (s.start && s.end) {
                             const start = new Date(s.start);
                             const end = new Date(s.end);
-                            const hours = (end - start) / 36e5;
-                            return sum + (hours > 0 ? hours : 0);
+                            const ms = end - start;
+                            return sum + (ms > 0 ? ms : 0);
                         }
                         return sum;
                     }, 0);
+                }
+                // Convert ms to hr:min:sec
+                function formatTime(ms) {
+                    const totalSeconds = Math.floor(ms / 1000);
+                    const hours = Math.floor(totalSeconds / 3600);
+                    const minutes = Math.floor((totalSeconds % 3600) / 60);
+                    const seconds = totalSeconds % 60;
+                    return `${hours}h ${minutes}m ${seconds}s`;
                 }
                 li.innerHTML = `
                     <div style="position:relative;">
@@ -142,7 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <strong>${project.name}</strong>
                         <button class="sessions-btn" data-project="${project.id}" style="margin-left:1em;">Sessions</button>
                         <div style="text-align:right;margin-top:0.5em;">
-                            <span style="font-size:0.9em;color:#fff;">Time spent: ${totalSessionHours.toFixed(2)}</span>
+                            <span style="font-size:0.9em;color:#fff;">Time spent: ${formatTime(totalSessionMs)}</span>
                         </div>
                     </div>
                     <span>${project.desc}</span>
@@ -234,6 +247,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     editingId = id;
                     form.querySelector('button[type="submit"]').textContent = 'Update Project';
                     cancelEditBtn.style.display = 'inline-block';
+                    form.style.display = 'block';
+                    showFormBtn.style.display = 'none';
                 }
             } else if (e.target.hasAttribute('data-delete')) {
                 projects = projects.filter(p => p.id !== id);
