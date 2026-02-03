@@ -1,3 +1,47 @@
+/* Responsive styles for mobile devices */
+@media (max-width: 600px) {
+  body {
+    font-size: 1em;
+    padding: 0;
+  }
+  #main, #intro {
+    padding: 0.5em 0.2em;
+    min-width: 100vw;
+    min-height: 100vh;
+    box-sizing: border-box;
+  }
+  .section {
+    max-width: 100vw;
+    margin: 1em 0.2em;
+    padding: 1em;
+    border-radius: 8px;
+  }
+  input, textarea, button, .tab-btn {
+    font-size: 1em;
+    padding: 0.5em 1em;
+  }
+  #intro h1 {
+    font-size: 2em;
+  }
+  #intro .button {
+    width: 60px;
+    height: 60px;
+    font-size: 1.5em;
+    line-height: 60px;
+  }
+  .project-item {
+    padding: 0.7em;
+    border-radius: 8px;
+  }
+  .tab-content {
+    padding: 0.5em;
+    min-height: 30px;
+  }
+  .status-tooltip {
+    font-size: 0.85em;
+    padding: 4px 8px;
+  }
+}
 /* Dimension template core styles (minified and adapted for integration) */
 @import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700');
 body {
