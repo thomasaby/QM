@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const projects = getProjects();
         projectList.innerHTML = '';
         if (projects.length === 0) {
-            projectList.innerHTML = '<li>No projects yet.</li>';
+            projectList.innerHTML = '<li>No Quilts yet.</li>';
             return;
         }
         projects.forEach((project, idx) => {
