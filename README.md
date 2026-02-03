@@ -1,6 +1,7 @@
 # Quilt
 
 A simple project management web app built with vanilla JavaScript, HTML, and CSS. Designed for easy deployment (e.g., GitHub Pages) and local use.
+https://thomasaby.github.io/QM/
 
 ## Features
 - Start a new project with name, description, start time, and end time
