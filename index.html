@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quilt</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Quilt</h1>
+        <button id="show-form-btn">New Quilt</button>
+        <form id="project-form" style="display:none;">
+            <input type="hidden" id="project-id">
+            <label> Name:<input type="text" id="project-name" required></label>
+            <label>Description:<textarea id="project-desc" required></textarea></label>
+            <label>Start Time:<input type="datetime-local" id="project-start" required></label>
+            <label>End Time:<input type="datetime-local" id="project-end" required></label>
+            <button type="submit">Add Project</button>
+            <button type="button" id="cancel-edit" style="display:none;">Cancel Edit</button>
+        </form>
+        <h2>Projects</h2>
+        <ul id="project-list"></ul>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

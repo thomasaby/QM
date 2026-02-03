@@ -1,0 +1,63 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #f7f7f7;
+    margin: 0;
+    padding: 0;
+}
+.container {
+    max-width: 600px;
+    margin: 40px auto;
+    background: #fff;
+    padding: 24px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+h1, h2 {
+    text-align: center;
+}
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+label {
+    display: flex;
+    flex-direction: column;
+    font-weight: bold;
+}
+input, textarea, button {
+    font-size: 1rem;
+    padding: 8px;
+    margin-top: 4px;
+}
+button {
+    cursor: pointer;
+    background: #0077cc;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+button:hover {
+    background: #005fa3;
+}
+#project-list {
+    list-style: none;
+    padding: 0;
+}
+.project-item {
+    background: #f0f4f8;
+    margin-bottom: 12px;
+    padding: 12px;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    position: relative;
+}
+.project-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
