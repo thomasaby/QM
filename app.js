@@ -1,3 +1,77 @@
+document.addEventListener('DOMContentLoaded', () => {
+    // ...existing code...
+
+    // --- Session Modal Logic ---
+    let currentSessionProjectId = null;
+    function openSessionModal(projectId) {
+        currentSessionProjectId = projectId;
+        const modal = document.getElementById('session-modal');
+        const sessionListDiv = document.getElementById('session-list');
+        const projects = getProjects();
+        const project = projects.find(p => p.id === projectId);
+        if (!project) return;
+        // Render session list
+        sessionListDiv.innerHTML = `<ul style="padding-left:1em;">
+            ${(project.sessions || []).map((s, i) => `
+                <li>Session ${i+1}: ${s.start ? new Date(s.start).toLocaleString() : '-'} - ${s.end ? new Date(s.end).toLocaleString() : '-'} | ${(s.end && s.start) ? (((new Date(s.end) - new Date(s.start))/36e5).toFixed(2) + ' hrs') : ''} <br>Note: ${s.notes || ''}</li>
+            `).join('')}
+        </ul>`;
+        modal.style.display = 'flex';
+        // Enable/disable session controls
+        const hasOpenSession = (project.sessions || []).some(s => !s.end);
+        document.getElementById('start-session-btn-modal').disabled = hasOpenSession;
+        document.getElementById('end-session-btn-modal').disabled = !hasOpenSession;
+    }
+
+    // Modal close button
+    document.getElementById('close-session-modal').onclick = function() {
+        document.getElementById('session-modal').style.display = 'none';
+        currentSessionProjectId = null;
+    };
+
+    // Modal start session
+    document.getElementById('start-session-btn-modal').onclick = function() {
+        if (!currentSessionProjectId) return;
+        const projects = getProjects();
+        const project = projects.find(p => p.id === currentSessionProjectId);
+        if (!project.sessions) project.sessions = [];
+        if (!project.sessions.some(s => !s.end)) {
+            project.sessions.push({ start: new Date().toISOString(), end: null, notes: '' });
+            saveProjects(projects);
+            openSessionModal(currentSessionProjectId);
+        } else {
+            alert('A session is already in progress for this project.');
+        }
+    };
+
+    // Modal end session
+    document.getElementById('end-session-btn-modal').onclick = function() {
+        if (!currentSessionProjectId) return;
+        const projects = getProjects();
+        const project = projects.find(p => p.id === currentSessionProjectId);
+        if (project && project.sessions && project.sessions.some(s => !s.end)) {
+            const session = project.sessions.find(s => !s.end);
+            session.end = new Date().toISOString();
+            saveProjects(projects);
+            openSessionModal(currentSessionProjectId);
+        }
+    };
+
+    // Modal add note
+    document.getElementById('add-session-note-btn-modal').onclick = function() {
+        if (!currentSessionProjectId) return;
+        const note = document.getElementById('session-note-input-modal').value;
+        const projects = getProjects();
+        const project = projects.find(p => p.id === currentSessionProjectId);
+        if (project && project.sessions && project.sessions.length > 0) {
+            project.sessions[project.sessions.length - 1].notes = note;
+            saveProjects(projects);
+            openSessionModal(currentSessionProjectId);
+        }
+    };
+
+    // ...existing code...
+});
 // Step 7: Implementing app logic for QuiltMore
 // Log: Vanilla JS, HTML, CSS stack
 
@@ -57,6 +131,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     status = 'planned';
                     statusText = 'Planned';
                 }
+                // Calculate total session time
+                let totalSessionHours = 0;
+                if (project.sessions && Array.isArray(project.sessions)) {
+                    totalSessionHours = project.sessions.reduce((sum, s) => {
+                        if (s.start && s.end) {
+                            const start = new Date(s.start);
+                            const end = new Date(s.end);
+                            const hours = (end - start) / 36e5;
+                            return sum + (hours > 0 ? hours : 0);
+                        }
+                        return sum;
+                    }, 0);
+                }
                 li.innerHTML = `
                     <div style="position:relative;">
                         <span style="position:absolute;top:0;right:0;">
@@ -64,6 +151,10 @@ document.addEventListener('DOMContentLoaded', () => {
                             <span class="status-tooltip" style="display:none;">${status === 'in-progress' ? 'End time missing. Project is ongoing.' : (status === 'complete' ? 'Project has both start and end time. Marked complete.' : 'Project has no start or end time. Planned.')}</span>
                         </span>
                         <strong>${project.name}</strong>
+                        <button class="sessions-btn" data-project="${project.id}" style="margin-left:1em;">Sessions</button>
+                        <div style="text-align:right;margin-top:0.5em;">
+                            <span style="font-size:0.9em;color:#fff;">Time spent: ${totalSessionHours.toFixed(2)}</span>
+                        </div>
                     </div>
                     <span>${project.desc}</span>
                     <span>Start: ${project.start ? new Date(project.start).toLocaleString() : '-'}</span>
@@ -126,9 +217,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!name || !desc) return; // Only name and description are mandatory
         let projects = getProjects();
         if (editingId) {
-            projects = projects.map(p => p.id === editingId ? { id, name, desc, start, end } : p);
+            // Preserve sessions if editing
+            const old = projects.find(p => p.id === editingId);
+            projects = projects.map(p => p.id === editingId ? { id, name, desc, start, end, sessions: old && old.sessions ? old.sessions : [] } : p);
         } else {
-            projects.push({ id, name, desc, start, end });
+            projects.push({ id, name, desc, start, end, sessions: [] });
         }
         saveProjects(projects);
         renderProjects();
@@ -136,9 +229,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     projectList.addEventListener('click', (e) => {
+        let projects = getProjects();
+        // Edit/Delete project or open sessions dialog
         if (e.target.tagName === 'BUTTON') {
-            const id = e.target.getAttribute('data-edit') || e.target.getAttribute('data-delete');
-            let projects = getProjects();
+            const id = e.target.getAttribute('data-edit') || e.target.getAttribute('data-delete') || e.target.getAttribute('data-project');
+            // Edit
             if (e.target.hasAttribute('data-edit')) {
                 const project = projects.find(p => p.id === id);
                 if (project) {
@@ -156,6 +251,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 saveProjects(projects);
                 renderProjects();
                 resetForm();
+            }
+            // Open Sessions dialog
+            else if (e.target.classList.contains('sessions-btn')) {
+                openSessionModal(id);
             }
         }
     });

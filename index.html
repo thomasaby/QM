@@ -29,6 +29,20 @@
             <ul id="project-list"></ul>
         </section>
     </div>
+    <!-- Session Modal Dialog -->
+    <div id="session-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);z-index:999;align-items:center;justify-content:center;">
+        <div id="session-modal-content" style="background:#fff;color:#222;padding:2em;border-radius:12px;min-width:320px;max-width:90vw;max-height:80vh;overflow:auto;position:relative;">
+            <button id="close-session-modal" style="position:absolute;top:8px;right:8px;">&times;</button>
+            <h3>Sessions</h3>
+            <div id="session-list"></div>
+            <div id="add-session-section">
+                <button id="start-session-btn-modal">Start Session</button>
+                <button id="end-session-btn-modal">End Session</button>
+                <input type="text" id="session-note-input-modal" placeholder="Session notes..." style="width:60%" />
+                <button id="add-session-note-btn-modal">Add Note</button>
+            </div>
+        </div>
+    </div>
     <script src="app.js"></script>
     <script>
     // Dimension template intro/main logic

@@ -1,3 +1,57 @@
+/* Session Modal Styles */
+#session-modal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0,0,0,0.5);
+    z-index: 999;
+    align-items: center;
+    justify-content: center;
+}
+#session-modal[style*="display: flex"] {
+    display: flex !important;
+}
+#session-modal-content {
+    background: #fff;
+    color: #222;
+    padding: 2em;
+    border-radius: 12px;
+    min-width: 320px;
+    max-width: 90vw;
+    max-height: 80vh;
+    overflow: auto;
+    position: relative;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+}
+#close-session-modal {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: #e74c3c;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    font-size: 1.5em;
+    cursor: pointer;
+    line-height: 32px;
+    text-align: center;
+}
+#close-session-modal:hover {
+    background: #c0392b;
+}
+#session-list ul {
+    list-style: disc inside;
+    margin: 0 0 1em 0;
+    padding-left: 1em;
+}
+#add-session-section {
+    display: flex;
+    gap: 0.5em;
+    align-items: center;
+    margin-top: 1em;
+}
 body {
     font-family: Arial, sans-serif;
     background: #f7f7f7;
