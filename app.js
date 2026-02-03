@@ -1,6 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // ...existing code...
-
     // --- Session Modal Logic ---
     let currentSessionProjectId = null;
     function openSessionModal(projectId) {
@@ -23,13 +21,11 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('end-session-btn-modal').disabled = !hasOpenSession;
     }
 
-    // Modal close button
     document.getElementById('close-session-modal').onclick = function() {
         document.getElementById('session-modal').style.display = 'none';
         currentSessionProjectId = null;
     };
 
-    // Modal start session
     document.getElementById('start-session-btn-modal').onclick = function() {
         if (!currentSessionProjectId) return;
         const projects = getProjects();
@@ -44,7 +40,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Modal end session
     document.getElementById('end-session-btn-modal').onclick = function() {
         if (!currentSessionProjectId) return;
         const projects = getProjects();
@@ -57,7 +52,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Modal add note
     document.getElementById('add-session-note-btn-modal').onclick = function() {
         if (!currentSessionProjectId) return;
         const note = document.getElementById('session-note-input-modal').value;
@@ -70,12 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // ...existing code...
-});
-// Step 7: Implementing app logic for QuiltMore
-// Log: Vanilla JS, HTML, CSS stack
-
-document.addEventListener('DOMContentLoaded', () => {
+    // Log: Vanilla JS, HTML, CSS stack
     const form = document.getElementById('project-form');
     const projectList = document.getElementById('project-list');
     const cancelEditBtn = document.getElementById('cancel-edit');
@@ -265,6 +254,8 @@ document.addEventListener('DOMContentLoaded', () => {
         form.style.display = 'block';
         showFormBtn.style.display = 'none';
     });
+
+
 
     renderProjects();
 });
