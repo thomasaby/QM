@@ -18,26 +18,92 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderProjects() {
         const projects = getProjects();
-        projectList.innerHTML = '';
-        if (projects.length === 0) {
-            projectList.innerHTML = '<li>No Quilts yet.</li>';
-            return;
+        // Categorize projects
+        const planned = projects.filter(p => !p.start && !p.end);
+        const inProgress = projects.filter(p => p.start && !p.end);
+        const completed = projects.filter(p => p.start && p.end);
+
+        // Tab UI
+        projectList.innerHTML = `
+            <div class="tabs">
+                <button class="tab-btn" data-tab="in-progress">In Progress</button>
+                <button class="tab-btn" data-tab="completed">Completed</button>
+                <button class="tab-btn" data-tab="planned">Planned</button>
+            </div>
+            <div class="tab-content" id="tab-in-progress"></div>
+            <div class="tab-content" id="tab-completed" style="display:none;"></div>
+            <div class="tab-content" id="tab-planned" style="display:none;"></div>
+        `;
+        // Render projects in each tab
+        function renderTab(list, containerId) {
+            const container = projectList.querySelector(containerId);
+            if (list.length === 0) {
+                container.innerHTML = '<li>No projects.</li>';
+                return;
+            }
+            list.forEach(project => {
+                const li = document.createElement('li');
+                li.className = 'project-item';
+                // Determine status
+                let status = '';
+                let statusText = '';
+                if (!project.end && project.start) {
+                    status = 'in-progress';
+                    statusText = 'In Progress';
+                } else if (project.start && project.end) {
+                    status = 'complete';
+                    statusText = 'Complete';
+                } else if (!project.start && !project.end) {
+                    status = 'planned';
+                    statusText = 'Planned';
+                }
+                li.innerHTML = `
+                    <div style="position:relative;">
+                        <span style="position:absolute;top:0;right:0;">
+                            <span class="status-circle ${status}" title="${statusText}"></span>
+                            <span class="status-tooltip" style="display:none;">${status === 'in-progress' ? 'End time missing. Project is ongoing.' : (status === 'complete' ? 'Project has both start and end time. Marked complete.' : 'Project has no start or end time. Planned.')}</span>
+                        </span>
+                        <strong>${project.name}</strong>
+                    </div>
+                    <span>${project.desc}</span>
+                    <span>Start: ${project.start ? new Date(project.start).toLocaleString() : '-'}</span>
+                    <span>End: ${project.end ? new Date(project.end).toLocaleString() : '-'}</span>
+                    <div class="project-actions">
+                        <button data-edit="${project.id}">Edit</button>
+                        <button data-delete="${project.id}">Delete</button>
+                    </div>
+                `;
+                // Tooltip show/hide logic
+                const statusCircle = li.querySelector('.status-circle');
+                const tooltip = li.querySelector('.status-tooltip');
+                if (statusCircle && tooltip) {
+                    statusCircle.addEventListener('mouseenter', () => {
+                        tooltip.style.display = 'block';
+                    });
+                    statusCircle.addEventListener('mouseleave', () => {
+                        tooltip.style.display = 'none';
+                    });
+                }
+                container.appendChild(li);
+            });
         }
-        projects.forEach((project, idx) => {
-            const li = document.createElement('li');
-            li.className = 'project-item';
-            li.innerHTML = `
-                <strong>${project.name}</strong>
-                <span>${project.desc}</span>
-                <span>Start: ${new Date(project.start).toLocaleString()}</span>
-                <span>End: ${new Date(project.end).toLocaleString()}</span>
-                <div class="project-actions">
-                    <button data-edit="${project.id}">Edit</button>
-                    <button data-delete="${project.id}">Delete</button>
-                </div>
-            `;
-            projectList.appendChild(li);
+        renderTab(inProgress, '#tab-in-progress');
+        renderTab(completed, '#tab-completed');
+        renderTab(planned, '#tab-planned');
+        // Tab switching logic
+        const tabBtns = projectList.querySelectorAll('.tab-btn');
+        const tabContents = projectList.querySelectorAll('.tab-content');
+        tabBtns.forEach((btn, idx) => {
+            btn.addEventListener('click', () => {
+                tabContents.forEach(tc => tc.style.display = 'none');
+                projectList.querySelector(`#tab-${btn.dataset.tab}`).style.display = 'block';
+                tabBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
         });
+        // Show In Progress tab by default and highlight it
+        projectList.querySelector('#tab-in-progress').style.display = 'block';
+        tabBtns[0].classList.add('active');
     }
 
     function resetForm() {
@@ -57,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const desc = document.getElementById('project-desc').value.trim();
         const start = document.getElementById('project-start').value;
         const end = document.getElementById('project-end').value;
-        if (!name || !desc || !start || !end) return;
+        if (!name || !desc) return; // Only name and description are mandatory
         let projects = getProjects();
         if (editingId) {
             projects = projects.map(p => p.id === editingId ? { id, name, desc, start, end } : p);
